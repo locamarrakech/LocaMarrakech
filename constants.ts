@@ -89,4 +89,8 @@ export const translations = {
   // Home Page - About Section
   aboutSectionTitle: { fr: 'À propos de LocaMarrakech', en: 'About LocaMarrakech', ar: 'عن لوكا مراكش' },
   aboutSectionText: { fr: "Chez LocaMarrakech, nous sommes spécialisés dans la location de voitures de luxe au Maroc. Notre large sélection de véhicules haut de gamme vous garantit un voyage alliant confort et élégance. Engagés à offrir un service impeccable et à entretenir une flotte soigneusement sélectionnée, nous veillons à offrir à chaque client une expérience inégalée et inoubliable.", en: "At LocaMarrakech, we specialize in luxury car rentals in Morocco. Our wide selection of high-end vehicles guarantees you a journey combining comfort and elegance. Committed to providing impeccable service and maintaining a carefully selected fleet, we ensure an unparalleled and unforgettable experience for every client.", ar: "في لوكا مراكش، نحن متخصصون في تأجير السيارات الفاخرة في المغرب. تضمن لكم مجموعتنا الواسعة من المركبات الراقية رحلة تجمع بين الراحة والأناقة. ملتزمون بتقديم خدمة لا تشوبها شائبة والحفاظ على أسطول مختار بعناية، ونحن نضمن تجربة لا مثيل لها ولا تنسى لكل عميل." },
+
+  // Home Page - Instagram
+  instagramTitle: { fr: 'Suivez-nous sur Instagram', en: 'Follow us on Instagram', ar: 'تابعنا على انستغرام' },
+  instagramUsername: { fr: '@locamarrakech', en: '@locamarrakech', ar: '@locamarrakech' },
 };

@@ -12,10 +12,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
     <script>
       tailwind.config = {
         darkMode: 'class',
         theme: {
+          container: {
+            center: true,
+            screens: {
+              sm: '640px',
+              md: '768px',
+              lg: '1024px',
+              xl: '1180px',
+              '2xl': '1180px',
+            },
+          },
           extend: {
             fontFamily: {
               'sans': ['Inter', 'sans-serif'],
@@ -40,6 +53,12 @@
       @keyframes scroll {
         0% { transform: translateX(0); }
         100% { transform: translateX(calc(-250px * 9)); }
+      }
+      .swiper-button-next, .swiper-button-prev {
+        color: #C9A96D !important;
+      }
+      .swiper-button-next:after, .swiper-button-prev:after {
+        font-size: 1.75rem !important;
       }
     </style>
   <script type="importmap">

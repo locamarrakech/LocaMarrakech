@@ -4,6 +4,7 @@ import BrandCarousel from '../components/BrandCarousel';
 import CarCard from '../components/CarCard';
 import { useCars } from '../hooks/useCars';
 import LoadingSpinner from '../components/LoadingSpinner';
+import InstagramFeed from '../components/InstagramFeed';
 
 const HomePage: React.FC = () => {
   const { t } = useAppContext();
@@ -11,10 +12,10 @@ const HomePage: React.FC = () => {
   const featuredCars = cars.slice(0, 3);
 
   const CtaBlock: React.FC<{title: string, description: string, icon: React.ReactNode}> = ({title, description, icon}) => (
-    <div className="bg-white dark:bg-secondary p-8 rounded-lg shadow-lg text-center transform hover:-translate-y-2 transition-transform duration-300">
+    <div className="bg-white p-8 rounded-lg shadow-lg text-center transform hover:-translate-y-2 transition-transform duration-300">
       <div className="text-primary mx-auto mb-4 w-16 h-16">{icon}</div>
       <h3 className="text-2xl font-bold font-serif mb-2">{title}</h3>
-      <p className="text-gray-600 dark:text-gray-400">{description}</p>
+      <p className="text-gray-600">{description}</p>
     </div>
   );
 
@@ -76,23 +77,11 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* FABs */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end space-y-4">
-          <a href="tel:+212123456789" className="bg-secondary text-white p-4 rounded-full shadow-lg hover:bg-gray-800 transition-colors">
-              <span className="sr-only">Call us</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-          </a>
-          <a href="#/cars" className="flex items-center bg-green-500 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-600 transition-colors font-semibold">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              {t('quickReservation')}
-          </a>
-      </div>
-
       {/* Brand Carousel */}
       <BrandCarousel />
 
       {/* Featured Cars Section */}
-      <section className="py-20 bg-background-light dark:bg-background-dark">
+      <section className="py-20 bg-background-light">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl md:text-5xl font-serif font-bold text-center mb-12">{t('featuredCars')}</h2>
           {loading ? (
@@ -121,9 +110,12 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Instagram Feed Section */}
+      <InstagramFeed />
       
       {/* CTA Blocks Section */}
-      <section className="py-20 bg-gray-100 dark:bg-secondary">
+      <section className="py-20 bg-gray-100">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <CtaBlock 
