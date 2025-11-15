@@ -1,6 +1,6 @@
 // pages/api/contact.ts
 
-import nodemailer from 'nodemailer';
+import * as nodemailer from 'nodemailer';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 

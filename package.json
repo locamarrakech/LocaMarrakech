@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node build-api.js && vite build",
+    "build": "vite build",
     "preview": "vite preview",
-    "vercel-build": "node build-api.js && vite build"
+    "vercel-build": "vite build"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

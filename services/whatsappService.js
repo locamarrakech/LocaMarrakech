@@ -11,7 +11,7 @@ const qrcode = require('qrcode-terminal');
 config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });
 
-let client: typeof Client | null = null;
+let client = null;
 let isReady = false;
 let isInitializing = false;
 
@@ -27,7 +27,7 @@ export function preInitializeWhatsApp() {
 }
 
 // Initialize WhatsApp client
-export function initializeWhatsApp(): Promise<typeof Client> {
+export function initializeWhatsApp() {
   return new Promise((resolve, reject) => {
     if (client && isReady) {
       resolve(client);
@@ -94,7 +94,7 @@ export function initializeWhatsApp(): Promise<typeof Client> {
 }
 
 // Send WhatsApp message
-export async function sendWhatsAppMessage(phoneNumber: string, message: string): Promise<boolean> {
+export async function sendWhatsAppMessage(phoneNumber, message) {
   try {
     console.log('📱 [WhatsApp] Starting to send message...');
     console.log('📱 [WhatsApp] Phone number received:', phoneNumber);
@@ -149,7 +149,7 @@ export async function sendWhatsAppMessage(phoneNumber: string, message: string):
     console.log('✅ [WhatsApp] Message sent successfully!');
     console.log('✅ [WhatsApp] Message ID:', result.id._serialized);
     return true;
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ [WhatsApp] Error sending message:', error);
     console.error('❌ [WhatsApp] Error details:', {
       message: error.message,
@@ -161,21 +161,7 @@ export async function sendWhatsAppMessage(phoneNumber: string, message: string):
 }
 
 // Format booking message for WhatsApp
-export function formatBookingMessage(data: {
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  city: string;
-  startDate: string;
-  endDate: string;
-  carName: string;
-  featuredImage?: string;
-  carPrice?: string;
-  carModel?: string;
-  carTransmission?: string;
-  carSeats?: string;
-  carFuel?: string;
-}): string {
+export function formatBookingMessage(data) {
   const startDate = new Date(data.startDate).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',

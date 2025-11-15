@@ -1,7 +1,7 @@
 // pages/api/send-email.ts
 // If you get type errors, you can also create this as send-email.js instead
 
-import nodemailer from 'nodemailer';
+import * as nodemailer from 'nodemailer';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 
@@ -11,8 +11,8 @@ async function sendWhatsAppNotification(data: any, phoneNumber: string) {
     console.log('📧 [Email API] Attempting to send WhatsApp notification...');
     console.log('📧 [Email API] WhatsApp number from env:', phoneNumber);
     
-    // Use dynamic import to avoid loading during module evaluation
-    const { sendWhatsAppMessage, formatBookingMessage } = await import('@/services/whatsappService');
+    // Use dynamic import with relative path to avoid module resolution issues
+    const { sendWhatsAppMessage, formatBookingMessage } = await import('../../services/whatsappService');
     
     console.log('📧 [Email API] WhatsApp service loaded successfully');
     
