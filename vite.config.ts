@@ -6,6 +6,7 @@ import { vitePluginApi } from './vite-plugin-api';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
+      base: process.env.VERCEL_ENV ? '/' : '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
@@ -33,6 +34,7 @@ export default defineConfig(({ mode }) => {
             main: path.resolve(__dirname, 'index.html'),
           },
         },
+        outDir: 'dist',
       },
     };
 });
