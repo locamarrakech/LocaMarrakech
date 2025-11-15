@@ -320,6 +320,7 @@ Max Speed: ${body.carSpeed ? `${body.carSpeed} km/h` : 'N/A'}`,
         startDate: body.startDate,
         endDate: body.endDate,
         carName: body.carName,
+        featuredImage: body.featuredImage,
         carPrice: body.carPrice,
         carModel: body.carModel,
         carTransmission: body.carTransmission,
@@ -346,6 +347,7 @@ Max Speed: ${body.carSpeed ? `${body.carSpeed} km/h` : 'N/A'}`,
     } else if (error.message) {
       errorMessage = `Email error: ${error.message}`;
     }
+    
     
     return res.status(500).json({ 
       success: false, 

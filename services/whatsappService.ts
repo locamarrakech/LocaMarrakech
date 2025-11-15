@@ -11,7 +11,7 @@ const qrcode = require('qrcode-terminal');
 config({ path: resolve(process.cwd(), '.env.local') });
 config({ path: resolve(process.cwd(), '.env') });
 
-let client: Client | null = null;
+let client: typeof Client | null = null;
 let isReady = false;
 let isInitializing = false;
 
@@ -27,7 +27,7 @@ export function preInitializeWhatsApp() {
 }
 
 // Initialize WhatsApp client
-export function initializeWhatsApp(): Promise<Client> {
+export function initializeWhatsApp(): Promise<typeof Client> {
   return new Promise((resolve, reject) => {
     if (client && isReady) {
       resolve(client);
@@ -169,6 +169,7 @@ export function formatBookingMessage(data: {
   startDate: string;
   endDate: string;
   carName: string;
+  featuredImage?: string;
   carPrice?: string;
   carModel?: string;
   carTransmission?: string;
@@ -193,6 +194,7 @@ export function formatBookingMessage(data: {
   const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
   return `🚗 *NEW BOOKING RECEIVED* 🚗
+${data.featuredImage ? `\n📸 ${data.featuredImage}` : ''}
 
 *Car Details:*
 🏎️ ${data.carName}
