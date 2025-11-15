@@ -38,8 +38,9 @@ export const translations = {
   heroFeature4: { fr: 'Livraison Gratuite', en: 'Free Delivery', ar: 'توصيل مجاني' },
   quickReservation: { fr: 'Réservation rapide', en: 'Quick Reservation', ar: 'حجز سريع' },
 
-  bookNow: { fr: 'Réservez maintenant', en: 'Book Now', ar: 'احجز الآن' },
+  bookNow: { fr: 'Réservez', en: 'Book Now', ar: 'احجز الآن' },
   featuredCars: { fr: 'Nos Voitures en Vedette', en: 'Our Featured Cars', ar: 'سياراتنا المميزة' },
+  seeMoreCars: { fr: 'Voir Plus de Voitures', en: 'See More Cars', ar: 'عرض المزيد من السيارات' },
   quickBooking: { fr: 'Réservation rapide', en: 'Quick Booking', ar: 'حجز سريع' },
   quickBookingDesc: { fr: 'Réservez votre voiture en quelques clics.', en: 'Book your car in just a few clicks.', ar: 'احجز سيارتك ببضع نقرات فقط.' },
   assistance: { fr: '24/7 Assistance', en: '24/7 Support', ar: 'مساعدة 24/7' },

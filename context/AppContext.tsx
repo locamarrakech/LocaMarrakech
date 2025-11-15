@@ -25,8 +25,20 @@ export const AppContextProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, [theme]);
 
   useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    const html = document.documentElement;
+    html.lang = language;
+    html.dir = language === 'ar' ? 'rtl' : 'ltr';
+    
+    // Update font family based on language
+    if (language === 'ar') {
+      html.style.fontFamily = 'Cairo, sans-serif';
+      html.classList.add('rtl');
+      html.classList.remove('ltr');
+    } else {
+      html.style.fontFamily = '';
+      html.classList.add('ltr');
+      html.classList.remove('rtl');
+    }
   }, [language]);
 
   const setTheme = (newTheme: Theme) => {

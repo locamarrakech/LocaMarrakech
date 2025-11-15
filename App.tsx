@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { AppContextProvider } from './context/AppContext';
+import { AppContextProvider, useAppContext } from './context/AppContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -8,61 +8,66 @@ import CarsPage from './pages/CarsPage';
 import CarDetailsPage from './pages/CarDetailsPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
+import BlogPage from './pages/BlogPage';
+import DynamicPage from './pages/DynamicPage';
 
-type Route = {
-  path: string;
-  component: React.ComponentType<any>;
-};
+const AppContent: React.FC = () => {
+  const { language } = useAppContext();
+  const [currentPath, setCurrentPath] = useState(window.location.pathname || '/');
 
-const routes: Route[] = [
-  { path: '#/', component: HomePage },
-  { path: '#/cars', component: CarsPage },
-  { path: '#/car/', component: CarDetailsPage }, // Note: parameter handled internally
-  { path: '#/about', component: AboutPage },
-  { path: '#/contact', component: ContactPage },
-];
-
-const App: React.FC = () => {
-  const [currentPath, setCurrentPath] = useState(window.location.hash || '#/');
-
-  const handleHashChange = useCallback(() => {
-    setCurrentPath(window.location.hash || '#/');
+  const handlePopState = useCallback(() => {
+    setCurrentPath(window.location.pathname || '/');
   }, []);
 
   useEffect(() => {
-    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handlePopState);
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handlePopState);
     };
-  }, [handleHashChange]);
+  }, [handlePopState]);
 
   const CurrentPage = () => {
-    const matchedRoute = routes.find(route => {
-      if (route.path.endsWith('/')) {
-        return currentPath.startsWith(route.path);
-      }
-      return route.path === currentPath;
-    });
-    
-    const PageComponent = matchedRoute ? matchedRoute.component : HomePage;
-    
-    if (currentPath.startsWith('#/car/')) {
-        const carId = currentPath.split('/')[2];
-        return <CarDetailsPage carId={carId} />;
+    // Handle known routes first
+    switch (currentPath) {
+      case '/':
+        return <HomePage />;
+      case '/cars':
+        return <CarsPage />;
+      case '/about':
+        return <AboutPage />;
+      case '/contact':
+        return <ContactPage />;
+      case '/blog':
+        return <BlogPage />;
+      default:
+        // For any other path, check the structure
+        const pathSegments = currentPath.split('/').filter(Boolean);
+        if (pathSegments.length === 1) {
+          // Dynamic page: could be car, blog post, or WordPress page
+          return <DynamicPage slug={pathSegments[0]} />;
+        }
+        // If multiple segments, show home page
+        return <HomePage />;
     }
-
-    return <PageComponent />;
   };
 
+  const isRTL = language === 'ar';
+
+  return (
+    <div className={`bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen flex flex-col transition-colors duration-300 ${isRTL ? 'font-arabic' : 'font-sans'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      <Header />
+      <main className="flex-grow">
+        <CurrentPage />
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+const App: React.FC = () => {
   return (
     <AppContextProvider>
-      <div className="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen flex flex-col font-sans transition-colors duration-300">
-        <Header />
-        <main className="flex-grow">
-          <CurrentPage />
-        </main>
-        <Footer />
-      </div>
+      <AppContent />
     </AppContextProvider>
   );
 };

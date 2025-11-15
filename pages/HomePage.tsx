@@ -5,11 +5,14 @@ import CarCard from '../components/CarCard';
 import { useCars } from '../hooks/useCars';
 import LoadingSpinner from '../components/LoadingSpinner';
 import InstagramFeed from '../components/InstagramFeed';
+import SEO from '../components/SEO';
+import { generateOrganizationSchema, generateWebsiteSchema } from '../utils/schema';
 
 const HomePage: React.FC = () => {
-  const { t } = useAppContext();
+  const { t, language } = useAppContext();
   const { cars, loading } = useCars();
-  const featuredCars = cars.slice(0, 3);
+  const featuredCars = cars.slice(0, 6);
+  const isRTL = language === 'ar';
 
   const CtaBlock: React.FC<{title: string, description: string, icon: React.ReactNode}> = ({title, description, icon}) => (
     <div className="bg-white p-8 rounded-lg shadow-lg text-center transform hover:-translate-y-2 transition-transform duration-300">
@@ -26,16 +29,29 @@ const HomePage: React.FC = () => {
     </div>
   );
 
+  const homeUrl = typeof window !== 'undefined' ? window.location.href : 'https://locamarrakech.com';
+  const organizationSchema = generateOrganizationSchema();
+  const websiteSchema = generateWebsiteSchema();
+
   return (
-    <div>
-      {/* Hero Section */}
+    <>
+      <SEO
+        title="LocaMarrakech - Location de Voitures de Luxe à Marrakech | Service 24/7"
+        description="LocaMarrakech est une entreprise de location de voitures de luxe à Marrakech. Voitures neuves et bien entretenues, prix compétitifs, service 24/7, livraison gratuite à l'aéroport."
+        url={homeUrl}
+        type="website"
+        schema={[organizationSchema, websiteSchema]}
+        keywords="location voiture marrakech, voiture de luxe marrakech, location voiture maroc, rental car marrakech, location voiture aéroport marrakech"
+      />
+      <div>
+      {/* Hero Section - FIXED: Added pt-32 for mobile to account for sticky header */}
       <section 
-        className="relative h-screen bg-cover bg-center flex flex-col justify-center text-white" 
-        style={{backgroundImage: `url('https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1920&auto=format&fit=crop')`}}
+        className="relative min-h-screen bg-cover bg-center flex flex-col justify-center text-white pt-32 pb-20" 
+        style={{backgroundImage: `url('https://i.ibb.co/kPMV0P3/pexels-jagmeetsingh-1134857.jpg')`}}
       >
-        <div className="absolute inset-0 bg-black/60"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/75 to-black/85"></div>
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
-          <div className="flex items-center space-x-4 mb-4">
+          <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'} mb-4`}>
             <div className="h-px w-16 bg-primary"></div>
             <span className="text-sm font-semibold tracking-widest">{t('heroSince')}</span>
             <div className="h-px w-16 bg-primary"></div>
@@ -47,11 +63,11 @@ const HomePage: React.FC = () => {
           <p className="text-2xl md:text-3xl font-serif mb-6">{t('heroSubtitle')}</p>
           <p className="text-sm md:text-base mb-10 max-w-4xl mx-auto text-gray-300">{t('heroDescription')}</p>
 
-          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
-            <a href="#/cars" className="bg-primary hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-md text-lg transition-colors duration-300 uppercase">
+          <div className={`flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 ${isRTL ? 'sm:space-x-reverse sm:space-x-6' : 'sm:space-x-6'} mb-12`}>
+            <a href="/cars" onClick={(e) => { e.preventDefault(); window.history.pushState({}, '', '/cars'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="bg-white hover:bg-gray-100 text-black font-bold py-3 px-8 rounded-md text-lg transition-colors duration-300 uppercase">
               {t('heroCtaReserve')}
             </a>
-            <a href="tel:+212123456789" className="bg-black/30 backdrop-blur-sm border-2 border-primary hover:bg-primary hover:text-black text-primary font-bold py-3 px-8 rounded-md text-lg transition-all duration-300 uppercase">
+            <a href="tel:+212627573069" className="bg-black/30 backdrop-blur-sm border-2 border-primary hover:bg-primary hover:text-black text-primary font-bold py-3 px-8 rounded-md text-lg transition-all duration-300 uppercase">
               {t('heroCtaCall')}
             </a>
           </div>
@@ -87,9 +103,26 @@ const HomePage: React.FC = () => {
           {loading ? (
             <LoadingSpinner />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredCars.map(car => <CarCard key={car.id} car={car} />)}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                {featuredCars.map(car => <CarCard key={car.id} car={car} />)}
+              </div>
+              {cars.length > 6 && (
+                <div className="text-center">
+                  <a 
+                    href="/cars" 
+                    onClick={(e) => { 
+                      e.preventDefault(); 
+                      window.history.pushState({}, '', '/cars'); 
+                      window.dispatchEvent(new PopStateEvent('popstate')); 
+                    }} 
+                    className="inline-block bg-gradient-to-b from-[#DAB875] to-[#C09A55] hover:from-[#C09A55] hover:to-[#DAB875] text-black font-bold py-4 px-8 rounded-lg text-lg uppercase transition-all duration-300 shadow-md hover:shadow-lg"
+                  >
+                    {t('seeMoreCars') || 'See More Cars'}
+                  </a>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
@@ -100,7 +133,7 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
             {/* Logo Column */}
             <div className="md:col-span-1 flex justify-center items-center">
-              <img src="https://i.ibb.co/F4B0pNsV/locamarrakech.png" alt="LocaMarrakech Logo" className="w-80 h-auto" />
+              <img src="/logo.png" alt="LocaMarrakech Logo" className="w-80 h-auto" />
             </div>
             {/* Text Column */}
             <div className="md:col-span-2 text-white">
@@ -112,7 +145,7 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Instagram Feed Section */}
-      <InstagramFeed />
+      <InstagramFeed account="med_faik" numberOfMediaElements={12} />
       
       {/* CTA Blocks Section */}
       <section className="py-20 bg-gray-100">
@@ -137,6 +170,7 @@ const HomePage: React.FC = () => {
         </div>
       </section>
     </div>
+    </>
   );
 };
 

@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Car } from '../types';
-import { fetchCars, fetchCarById } from '../services/wordpressService';
+import { fetchCars, fetchCarBySlug } from '../services/wordpressService';
 
 export const useCars = () => {
   const [cars, setCars] = useState<Car[]>([]);
@@ -29,17 +29,17 @@ export const useCars = () => {
   return { cars, loading, error, refresh: loadCars };
 };
 
-export const useCar = (id: string) => {
+export const useCar = (slug: string) => {
     const [car, setCar] = useState<Car | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     const loadCar = useCallback(async () => {
-        if (!id) return;
+        if (!slug) return;
         try {
             setLoading(true);
             setError(null);
-            const data = await fetchCarById(id);
+            const data = await fetchCarBySlug(slug);
             setCar(data);
         } catch (err) {
             setError('Failed to load car details.');
@@ -47,7 +47,7 @@ export const useCar = (id: string) => {
         } finally {
             setLoading(false);
         }
-    }, [id]);
+    }, [slug]);
 
     useEffect(() => {
         loadCar();

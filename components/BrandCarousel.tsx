@@ -5,6 +5,9 @@ import { brandLogos } from '../constants';
 const BrandCarousel: React.FC = () => {
   return (
     <div className="bg-background-light dark:bg-secondary py-12">
+      <p className="md:text-xl font-serif font-bold text-center mb-12">
+        La principale agence de location de voitures au Maroc
+      </p>
       <div className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
         <ul className="flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-infinite-scroll">
           {brandLogos.map((brand) => (

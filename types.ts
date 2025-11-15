@@ -1,6 +1,7 @@
 
 export interface Car {
   id: number;
+  slug: string;
   title: {
     rendered: string;
   };
@@ -29,6 +30,46 @@ export interface Media {
   id: number;
   source_url: string;
   alt_text: string;
+}
+
+export interface BlogPost {
+  id: number;
+  slug: string;
+  title: {
+    rendered: string;
+  };
+  content: {
+    rendered: string;
+  };
+  excerpt: {
+    rendered: string;
+  };
+  featured_media: number;
+  featured_media_url?: string;
+  date: string;
+  modified: string;
+  author: number;
+  _embedded?: {
+    author?: Array<{
+      name: string;
+    }>;
+    'wp:featuredmedia'?: Array<{
+      source_url: string;
+    }>;
+  };
+}
+
+export interface WordPressPage {
+  id: number;
+  slug: string;
+  title: {
+    rendered: string;
+  };
+  content: {
+    rendered: string;
+  };
+  date: string;
+  modified: string;
 }
 
 export type Language = 'fr' | 'en' | 'ar';

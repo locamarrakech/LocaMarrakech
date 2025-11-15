@@ -3,9 +3,9 @@ import { useAppContext } from '../context/AppContext';
 import type { Language } from '../types';
 
 const languages: { code: Language; name: string; flag: string }[] = [
-  { code: 'fr', name: 'FR', flag: '🇫🇷' },
-  { code: 'en', name: 'EN', flag: '🇬🇧' },
-  { code: 'ar', name: 'AR', flag: '🇲🇦' },
+  { code: 'fr', name: 'FR', flag: 'https://flagpedia.net/data/flags/w1160/fr.webp' },
+  { code: 'en', name: 'EN', flag: 'https://upload.wikimedia.org/wikipedia/commons/8/83/Flag_of_the_United_Kingdom_%283-5%29.svg' },
+  { code: 'ar', name: 'AR', flag: 'https://flagpedia.net/data/flags/w1160/ma.webp' },
 ];
 
 const LanguageSwitcher: React.FC = () => {
@@ -29,15 +29,23 @@ const LanguageSwitcher: React.FC = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-3 py-2 bg-gray-900 hover:bg-gray-800 rounded-md transition-colors"
+        className="flex items-center justify-center w-10 h-10"
+        aria-label="Change language"
       >
-        <span>{selectedLanguage?.flag}</span>
-        <span className="text-sm font-medium text-white">{selectedLanguage?.name}</span>
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+        {selectedLanguage && (
+          <img 
+            src={selectedLanguage.flag} 
+            alt={selectedLanguage.name}
+            className="w-6 h-4 object-cover rounded-sm"
+          />
+        )}
+        <svg className="w-3 h-3 text-gray-400 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
       </button>
 
       {isOpen && (
-        <div className="absolute end-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50">
+        <div className="absolute end-0 mt-2 w-20 bg-white dark:bg-gray-800 rounded-lg shadow-xl py-2 z-50 border border-gray-200 dark:border-gray-700">
           {languages.map(lang => (
             <button
               key={lang.code}
@@ -45,10 +53,18 @@ const LanguageSwitcher: React.FC = () => {
                 setLanguage(lang.code);
                 setIsOpen(false);
               }}
-              className="w-full text-start flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className={`w-full flex items-center justify-center py-2 px-3 transition-colors ${
+                language === lang.code
+                  ? 'bg-primary/20'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+              aria-label={`Switch to ${lang.name}`}
             >
-              <span>{lang.flag}</span>
-              <span>{lang.name}</span>
+              <img 
+                src={lang.flag} 
+                alt={lang.name}
+                className="w-8 h-5 object-cover rounded-sm"
+              />
             </button>
           ))}
         </div>

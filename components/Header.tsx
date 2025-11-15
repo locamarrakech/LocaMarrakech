@@ -4,97 +4,154 @@ import LanguageSwitcher from './LanguageSwitcher';
 import ThemeToggle from './ThemeToggle';
 
 const Header: React.FC = () => {
-  const { t } = useAppContext();
+  const { t, language } = useAppContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [currentPath, setCurrentPath] = useState(window.location.hash || '#/');
+  const [currentPath, setCurrentPath] = useState(window.location.pathname || '/');
+  const isRTL = language === 'ar';
 
   useEffect(() => {
-    const handleHashChange = () => {
-      setCurrentPath(window.location.hash || '#/');
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname || '/');
     };
-    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handlePopState);
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    window.history.pushState({}, '', href);
+    setCurrentPath(href);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
 
   const navLinks = [
-    { href: '#/', label: t('home') },
-    { href: '#/cars', label: t('cars') },
-    { href: '#/blog', label: t('blog') },
-    { href: '#/about', label: t('about') },
-    { href: '#/contact', label: t('contact') },
+    { href: '/', label: t('home') },
+    { href: '/cars', label: t('cars') },
+    { href: '/blog', label: t('blog') },
+    { href: '/about', label: t('about') },
+    { href: '/contact', label: t('contact') },
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-black text-white shadow-lg">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-24">
-          <a href="#/" className="flex-shrink-0">
-             <img src="https://i.ibb.co/F4B0pNsV/locamarrakech.png" alt="LocaMarrakech Logo" className="h-14 md:h-16 w-auto" />
+    <header className="sticky top-0 z-50 bg-black border-b border-white/10">
+      <div className="max-w-7xl mx-auto px-6 lg:px-16">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
+          <a href="/" onClick={(e) => handleLinkClick(e, '/')} className="flex-shrink-0">
+            <img src="/logo.png" alt="LocaMarrakech" className="h-12 w-auto" />
           </a>
           
-          <nav className="hidden md:flex items-center space-x-8">
+          {/* Desktop Navigation */}
+          <nav className={`hidden lg:flex items-center ${isRTL ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
             {navLinks.map(link => {
-              const isActive = (link.href === '#/' && currentPath === link.href) || 
-                               (link.href !== '#/' && link.href !== '#/blog' && currentPath.startsWith(link.href)) ||
-                               (link.href ==='#/blog' && currentPath ==='#/blog');
+              const isActive = (link.href === '/' && currentPath === '/') || 
+                               (link.href !== '/' && link.href !== '/blog' && currentPath.startsWith(link.href)) ||
+                               (link.href === '/blog' && currentPath === '/blog');
 
               return (
-              <a 
-                key={link.href} 
-                href={link.href} 
-                className={`text-sm font-semibold uppercase tracking-wider transition-colors pb-2 ${
-                  isActive 
-                  ? 'text-primary border-b border-primary' 
-                  : 'text-white hover:text-primary border-b border-transparent'
-                }`}
-              >
-                {link.label}
-              </a>
-            )})}
+                <a 
+                  key={link.href} 
+                  href={link.href}
+                  onClick={(e) => handleLinkClick(e, link.href)}
+                  className={`relative px-5 py-2 text-xs font-medium uppercase tracking-widest transition-colors duration-300 ${
+                    isActive 
+                      ? 'text-white' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  {link.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-px bg-white"></span>
+                  )}
+                </a>
+              );
+            })}
           </nav>
 
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Desktop Actions */}
+          <div className={`hidden lg:flex items-center ${isRTL ? 'space-x-reverse space-x-6' : 'space-x-6'}`}>
             <a href="tel:+212627573069" className="flex items-center space-x-3 group">
-                <div className="p-3 border border-gray-600 rounded-full group-hover:border-primary transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                </div>
-                <div>
-                    <p className="text-xs text-gray-400 uppercase">{t('callUs')}</p>
-                    <p className="font-bold text-sm">+212 6 27 57 30 69</p>
-                </div>
+              <div className="p-2 border border-white/20 transition-colors hover:border-white/40">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">{t('callUs')}</p>
+                <p className="text-sm font-light text-white">+212 6 27 57 30 69</p>
+              </div>
             </a>
-            <LanguageSwitcher />
-            <ThemeToggle />
-            <a href="#/cars" className="bg-gradient-to-b from-[#DAB875] to-[#C09A55] hover:from-[#C09A55] hover:to-[#DAB875] text-black font-bold py-3 px-6 rounded-lg text-sm uppercase transition-all duration-300 shadow-md">
+            
+            <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-3 border-r border-l-0 pr-6 pl-0' : 'space-x-3 border-l border-r-0 pl-6 pr-0'}`}>
+              <LanguageSwitcher />
+              <ThemeToggle />
+            </div>
+
+            <a 
+              href="/cars" 
+              onClick={(e) => handleLinkClick(e, '/cars')} 
+              className="border border-white text-white px-6 py-2.5 text-xs font-medium uppercase tracking-widest transition-colors hover:bg-white hover:text-black"
+            >
               {t('reserve')}
             </a>
           </div>
 
-          <div className="md:hidden flex items-center">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-            </button>
-          </div>
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)} 
+            className="lg:hidden p-2 text-white"
+            aria-label="Toggle menu"
+          >
+            <div className="w-6 h-5 flex flex-col justify-between">
+              <span className={`block h-px w-full bg-white transform transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+              <span className={`block h-px w-full bg-white transition-all duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+              <span className={`block h-px w-full bg-white transform transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+            </div>
+          </button>
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-black">
-          <nav className="px-2 pt-2 pb-4 space-y-1 sm:px-3">
-            {navLinks.map(link => (
-              <a key={link.href} href={link.href} onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-primary hover:bg-gray-900">
-                {link.label}
-              </a>
-            ))}
+        <div className="lg:hidden bg-black border-t border-white/10">
+          <nav className="px-6 py-6 space-y-1">
+            {navLinks.map(link => {
+              const isActive = (link.href === '/' && currentPath === '/') || 
+                               (link.href !== '/' && link.href !== '/blog' && currentPath.startsWith(link.href)) ||
+                               (link.href === '/blog' && currentPath === '/blog');
+              
+              return (
+                <a 
+                  key={link.href} 
+                  href={link.href} 
+                  onClick={(e) => { handleLinkClick(e, link.href); setIsMenuOpen(false); }} 
+                  className={`block px-4 py-3 text-sm font-medium uppercase tracking-widest transition-colors ${isRTL ? 'border-r' : 'border-l'} ${
+                    isActive
+                      ? 'text-white border-white'
+                      : 'text-gray-400 hover:text-white border-transparent'
+                  }`}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
           </nav>
-          <div className="px-4 pb-4 flex items-center justify-between">
-            <LanguageSwitcher />
-            <ThemeToggle />
+          
+          <div className="px-6 pb-6 pt-6 border-t border-white/10">
+            <a 
+              href="/cars" 
+              onClick={(e) => { handleLinkClick(e, '/cars'); setIsMenuOpen(false); }} 
+              className="block text-center border border-white text-white px-6 py-3 text-sm font-medium uppercase tracking-widest transition-colors hover:bg-white hover:text-black mb-4"
+            >
+              {t('reserve')}
+            </a>
+            
+            <div className={`flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'} pt-4 border-t border-white/10`}>
+              <LanguageSwitcher />
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       )}
