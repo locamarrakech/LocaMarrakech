@@ -13,15 +13,22 @@ const nodemailer = require('nodemailer');
 
 // Helper function to handle responses for both Vercel and Next.js formats
 function sendResponse(res, statusCode, data) {
-  if (res.status) {
-    // Next.js style
+  // Try Vercel/Next.js style first (has .status method)
+  if (res && typeof res.status === 'function') {
     return res.status(statusCode).json(data);
-  } else {
-    // Vercel/Node.js style
+  }
+  // Fallback to Node.js style
+  if (res) {
     res.statusCode = statusCode;
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(data));
+    if (typeof res.end === 'function') {
+      res.end(JSON.stringify(data));
+    } else if (typeof res.json === 'function') {
+      return res.json(data);
+    }
   }
+  // If nothing works, return the data (for testing)
+  return data;
 }
 
 // Lazy load WhatsApp service to avoid CommonJS issues in SSR
