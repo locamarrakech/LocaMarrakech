@@ -11,6 +11,19 @@ config({ path: resolve(process.cwd(), '.env') });
 // Import nodemailer
 const nodemailer = require('nodemailer');
 
+// Helper function to handle responses for both Vercel and Next.js formats
+function sendResponse(res, statusCode, data) {
+  if (res.status) {
+    // Next.js style
+    return res.status(statusCode).json(data);
+  } else {
+    // Vercel/Node.js style
+    res.statusCode = statusCode;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(data));
+  }
+}
+
 // Lazy load WhatsApp service to avoid CommonJS issues in SSR
 async function sendWhatsAppNotification(data, phoneNumber) {
   try {
@@ -40,11 +53,33 @@ async function sendWhatsAppNotification(data, phoneNumber) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method not allowed' });
+  // Handle both Vercel and Next.js style requests
+  // Vercel uses req.method, but we also check headers as fallback
+  const method = req.method || req.httpMethod || (req.headers && (req.headers['x-http-method-override'] || req.headers['X-HTTP-Method-Override']));
+  
+  // Log for debugging
+  console.log('Request method:', method, 'Full req:', Object.keys(req));
+  
+  if (method && method !== 'POST') {
+    return sendResponse(res, 405, { success: false, message: 'Method not allowed' });
+  }
+  
+  // If no method is detected, assume POST (for compatibility)
+  if (!method) {
+    console.warn('No HTTP method detected, assuming POST');
   }
 
-  const body = req.body;
+  // Parse body - handle both Vercel and standard formats
+  let body = req.body;
+  if (!body) {
+    body = {};
+  } else if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      body = {};
+    }
+  }
   console.log('Received booking:', body);
 
   // Check if email credentials are configured
@@ -64,7 +99,7 @@ export default async function handler(req, res) {
     console.error('Email credentials not configured properly');
     console.error('EMAIL_USER:', emailUser ? 'set' : 'not set');
     console.error('EMAIL_PASS:', emailPass ? 'set (hidden)' : 'not set');
-    return res.status(500).json({ 
+    return sendResponse(res, 500, { 
       success: false, 
       message: 'Email service not configured. Please set EMAIL_USER and EMAIL_PASS environment variables in .env.local file with your Gmail address and App Password.' 
     });
@@ -316,7 +351,7 @@ Max Speed: ${body.carSpeed ? `${body.carSpeed} km/h` : 'N/A'}`,
       });
     }
 
-    return res.status(200).json({ success: true, message: 'Email sent successfully' });
+    return sendResponse(res, 200, { success: true, message: 'Email sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
     
@@ -333,7 +368,7 @@ Max Speed: ${body.carSpeed ? `${body.carSpeed} km/h` : 'N/A'}`,
       errorMessage = `Email error: ${error.message}`;
     }
     
-    return res.status(500).json({ 
+    return sendResponse(res, 500, { 
       success: false, 
       message: errorMessage,
       error: process.env.NODE_ENV === 'development' ? error.message : undefined

@@ -247,11 +247,11 @@ const CarDetailsPage: React.FC<CarDetailsPageProps> = ({ slug }) => {
         });
         setFormErrors({});
       } else {
-        alert('Error: Failed to send booking request. Please try again.');
+        alert(`Error: ${result.message || 'Failed to send booking request. Please try again.'}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting form:', error);
-      alert('Error: An error occurred. Please try again later.');
+      alert(`Error: ${error.message || 'An error occurred. Please try again later.'}`);
     } finally {
       setIsSubmitting(false);
     }

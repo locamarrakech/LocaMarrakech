@@ -11,17 +11,43 @@ config({ path: resolve(process.cwd(), '.env') });
 // Import nodemailer
 const nodemailer = require('nodemailer');
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method not allowed' });
+// Helper function to handle responses for both Vercel and Next.js formats
+function sendResponse(res, statusCode, data) {
+  if (res.status) {
+    // Next.js style
+    return res.status(statusCode).json(data);
+  } else {
+    // Vercel/Node.js style
+    res.statusCode = statusCode;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(data));
   }
+}
 
-  const body = req.body;
+export default async function handler(req, res) {
+  // Handle both Vercel and Next.js style requests
+  const method = req.method || req.httpMethod || (req.headers && (req.headers['x-http-method-override'] || req.headers['X-HTTP-Method-Override']));
+  
+  if (method && method !== 'POST') {
+    return sendResponse(res, 405, { success: false, message: 'Method not allowed' });
+  }
+  
+  // Parse body - handle both Vercel and standard formats
+  let body = req.body;
+  if (!body) {
+    body = {};
+  } else if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      body = {};
+    }
+  }
   console.log('Received contact form:', body);
 
   // Validate required fields
   if (!body.name || !body.email || !body.phone || !body.message) {
-    return res.status(400).json({ 
+    return sendResponse(res, 400, { 
       success: false, 
       message: 'All fields are required' 
     });
@@ -33,7 +59,7 @@ export default async function handler(req, res) {
 
   if (!emailUser || !emailPass) {
     console.error('Email credentials not configured properly');
-    return res.status(500).json({ 
+    return sendResponse(res, 500, { 
       success: false, 
       message: 'Email service not configured. Please set EMAIL_USER and EMAIL_PASS environment variables in .env.local file with your Gmail address and App Password.' 
     });
@@ -172,10 +198,10 @@ Ce message a été envoyé depuis le formulaire de contact de LocaMarrakech.`,
     });
 
     console.log('Contact email sent successfully');
-    return res.status(200).json({ success: true, message: 'Message sent successfully' });
+    return sendResponse(res, 200, { success: true, message: 'Message sent successfully' });
   } catch (error) {
     console.error('Error sending contact email:', error);
-    return res.status(500).json({ 
+    return sendResponse(res, 500, { 
       success: false, 
       message: error.message || 'Failed to send message. Please try again later.' 
     });

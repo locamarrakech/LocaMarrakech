@@ -55,53 +55,59 @@ type BookingData = {
 };
 
 export default async function handler(req: any, res: any) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method not allowed' });
-  }
-
-  const body: BookingData = req.body;
-  console.log('Received booking:', body);
-
-  // Check if email credentials are configured
-  const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
-
-  // Debug logging (remove in production)
-  console.log('Email config check:', {
-    hasEmailUser: !!emailUser,
-    emailUserLength: emailUser?.length || 0,
-    hasEmailPass: !!emailPass,
-    emailPassLength: emailPass?.length || 0,
-    emailUserPreview: emailUser ? `${emailUser.substring(0, 5)}...` : 'not set',
-  });
-
-  if (!emailUser || !emailPass) {
-    console.error('Email credentials not configured properly');
-    console.error('EMAIL_USER:', emailUser ? 'set' : 'not set');
-    console.error('EMAIL_PASS:', emailPass ? 'set (hidden)' : 'not set');
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Email service not configured. Please set EMAIL_USER and EMAIL_PASS environment variables in .env.local file with your Gmail address and App Password.' 
-    });
-  }
-
-  // Warn if using default placeholder values
-  if (emailUser === 'locamarrakech.com@gmail.com' || emailPass === 'oyee ciop hzbb pzeu') {
-    console.warn('Warning: Using default placeholder email credentials. Please update .env.local with your actual Gmail credentials.');
-  }
-
-  // Create transporter with your email credentials
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: emailUser,
-      pass: emailPass,
-    },
-  });
-
   try {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ success: false, message: 'Method not allowed' });
+    }
+
+    const body: BookingData = req.body;
+    console.log('Received booking:', body);
+
+    // Check if email credentials are configured
+    const emailUser = process.env.EMAIL_USER;
+    const emailPass = process.env.EMAIL_PASS;
+
+    // Debug logging (remove in production)
+    console.log('Email config check:', {
+      hasEmailUser: !!emailUser,
+      emailUserLength: emailUser?.length || 0,
+      hasEmailPass: !!emailPass,
+      emailPassLength: emailPass?.length || 0,
+      emailUserPreview: emailUser ? `${emailUser.substring(0, 5)}...` : 'not set',
+    });
+
+    // Basic validation - just check if they exist
+    if (!emailUser || !emailPass) {
+      console.error('Email credentials not configured');
+      console.error('EMAIL_USER:', emailUser ? 'set' : 'NOT SET');
+      console.error('EMAIL_PASS:', emailPass ? 'set' : 'NOT SET');
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Email service not configured. Please set EMAIL_USER and EMAIL_PASS in .env.local file and restart the server.' 
+      });
+    }
+    
+    // Warn about placeholder values but don't block
+    if (emailUser.includes('your-actual-gmail') || emailPass === 'abcdefghijklmnop') {
+      console.warn('⚠️ WARNING: Using placeholder values. Emails will likely fail. Please update .env.local with real credentials.');
+    }
+
+    // Warn if using default placeholder values
+    if (emailUser === 'locamarrakech.com@gmail.com' || emailPass === 'oyee ciop hzbb pzeu') {
+      console.warn('Warning: Using default placeholder email credentials. Please update .env.local with your actual Gmail credentials.');
+    }
+
+    // Create transporter with your email credentials
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: emailUser,
+        pass: emailPass,
+      },
+    });
+
     await transporter.sendMail({
-      from: body.email,
+        from: body.email,
       to: process.env.EMAIL_USER || 'locamarrakech.com@gmail.com',
       subject: "You've Received a New Booking",
       text: `New Booking Received:
