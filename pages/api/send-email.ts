@@ -34,8 +34,31 @@ async function sendWhatsAppNotification(data: any, phoneNumber: string) {
 }
 
 // Load environment variables from .env.local or .env
-config({ path: resolve(process.cwd(), '.env.local') });
-config({ path: resolve(process.cwd(), '.env') });
+// Try multiple paths to ensure we find the env file
+import { existsSync } from 'fs';
+
+const envLocalPath = resolve(process.cwd(), '.env.local');
+const envPath = resolve(process.cwd(), '.env');
+
+config({ path: envLocalPath });
+config({ path: envPath });
+
+// Also try loading from the project root if cwd is different
+const altEnvLocalPath = resolve(process.cwd(), '.env.local');
+const altEnvPath = resolve(process.cwd(), '.env');
+config({ path: altEnvLocalPath });
+config({ path: altEnvPath });
+
+// Debug: Log if env vars are loaded (without exposing values)
+console.log('Environment variables check:', {
+  EMAIL_USER_set: !!process.env.EMAIL_USER,
+  EMAIL_PASS_set: !!process.env.EMAIL_PASS,
+  EMAIL_USER_length: process.env.EMAIL_USER?.length || 0,
+  EMAIL_PASS_length: process.env.EMAIL_PASS?.length || 0,
+  cwd: process.cwd(),
+  envLocalExists: existsSync(envLocalPath),
+  envExists: existsSync(envPath),
+});
 
 type BookingData = {
   fullName: string;
@@ -96,15 +119,51 @@ export default async function handler(req: any, res: any) {
     if (emailUser === 'locamarrakech.com@gmail.com' || emailPass === 'oyee ciop hzbb pzeu') {
       console.warn('Warning: Using default placeholder email credentials. Please update .env.local with your actual Gmail credentials.');
     }
+    
+    // Check for common issues
+    if (emailPass && emailPass.includes(' ')) {
+      console.warn('⚠️ WARNING: EMAIL_PASS contains spaces. Gmail App Passwords should not have spaces. Remove any spaces from your App Password.');
+    }
+    
+    if (emailPass && emailPass.length !== 16) {
+      console.warn(`⚠️ WARNING: EMAIL_PASS length is ${emailPass.length}, but Gmail App Passwords should be 16 characters.`);
+    }
+    
+    if (emailUser && !emailUser.includes('@gmail.com') && !emailUser.includes('@googlemail.com')) {
+      console.warn('⚠️ WARNING: EMAIL_USER does not appear to be a Gmail address. Make sure you are using a Gmail account.');
+    }
 
     // Create transporter with your email credentials
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: emailUser,
-        pass: emailPass,
+        user: emailUser.trim(),
+        pass: emailPass.trim(),
       },
     });
+
+    // Verify transporter configuration before sending
+    try {
+      await transporter.verify();
+      console.log('✅ Gmail transporter verified successfully');
+    } catch (verifyError: any) {
+      console.error('❌ Gmail transporter verification failed:', verifyError);
+      let errorMessage = 'Gmail authentication failed. ';
+      
+      if (verifyError.code === 'EAUTH') {
+        errorMessage += 'Please check your EMAIL_USER and EMAIL_PASS environment variables. Make sure you are using a Gmail App Password, not your regular password.';
+      } else if (verifyError.code === 'ECONNECTION') {
+        errorMessage += 'Could not connect to Gmail servers. Please check your internet connection.';
+      } else {
+        errorMessage += `Error: ${verifyError.message || 'Unknown error'}`;
+      }
+      
+      return res.status(500).json({ 
+        success: false, 
+        message: errorMessage,
+        error: process.env.NODE_ENV === 'development' ? verifyError.message : undefined
+      });
+    }
 
     await transporter.sendMail({
         from: body.email,
@@ -340,25 +399,34 @@ Max Speed: ${body.carSpeed ? `${body.carSpeed} km/h` : 'N/A'}`,
     return res.status(200).json({ success: true, message: 'Email sent successfully' });
   } catch (error: any) {
     console.error('Error sending email:', error);
+    console.error('Error code:', error.code);
+    console.error('Error responseCode:', error.responseCode);
+    console.error('Error message:', error.message);
     
     // Provide more specific error messages
     let errorMessage = 'Failed to send email';
+    let troubleshootingTips = '';
     
-    if (error.code === 'EAUTH') {
-      errorMessage = 'Gmail authentication failed. Please check your EMAIL_USER and EMAIL_PASS environment variables. Make sure you are using a Gmail App Password, not your regular password.';
+    if (error.code === 'EAUTH' || error.responseCode === 535) {
+      errorMessage = 'Gmail authentication failed.';
+      troubleshootingTips = '\n\nTroubleshooting steps:\n' +
+        '1. Verify EMAIL_USER is your full Gmail address (e.g., yourname@gmail.com)\n' +
+        '2. Verify EMAIL_PASS is a 16-character Gmail App Password (no spaces)\n' +
+        '3. Make sure 2-Step Verification is enabled on your Google Account\n' +
+        '4. Generate a new App Password from: Google Account → Security → 2-Step Verification → App passwords\n' +
+        '5. Restart your development server after updating .env.local\n' +
+        '6. Check the server console for detailed error messages';
     } else if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
       errorMessage = 'Connection to email server failed. Please check your internet connection.';
-    } else if (error.responseCode === 535) {
-      errorMessage = 'Gmail authentication failed. Please verify your App Password is correct.';
     } else if (error.message) {
       errorMessage = `Email error: ${error.message}`;
     }
     
-    
     return res.status(500).json({ 
       success: false, 
-      message: errorMessage,
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: errorMessage + troubleshootingTips,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      errorCode: process.env.NODE_ENV === 'development' ? error.code : undefined
     });
   }
 }
