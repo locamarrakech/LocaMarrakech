@@ -9,14 +9,10 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/((?!assets/|api/|favicon.ico|logo.png).*)",
-      "dest": "/index.html"
+      "source": "/((?!api/|assets/|favicon.ico|logo.png).*)",
+      "destination": "/index.html"
     }
   ]
 }

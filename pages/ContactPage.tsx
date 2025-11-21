@@ -79,6 +79,14 @@ const ContactPage: React.FC = () => {
         body: JSON.stringify(formData),
       });
 
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        throw new Error(`Server returned ${response.status}: ${response.statusText}. The API endpoint may not be configured correctly.`);
+      }
+
       const result = await response.json();
 
       if (result.success) {
