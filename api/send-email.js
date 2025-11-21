@@ -58,7 +58,12 @@ export default async function handler(req, res) {
   const method = req.method || req.httpMethod || (req.headers && (req.headers['x-http-method-override'] || req.headers['X-HTTP-Method-Override']));
   
   // Log for debugging
-  console.log('Request method:', method, 'Full req:', Object.keys(req));
+  console.log('API Request received:', {
+    method: method,
+    url: req.url,
+    hasBody: !!req.body,
+    headers: req.headers ? Object.keys(req.headers) : 'no headers'
+  });
   
   if (method && method !== 'POST') {
     return sendResponse(res, 405, { success: false, message: 'Method not allowed' });
